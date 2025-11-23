@@ -57,4 +57,21 @@ class User extends Authenticatable
     {
         return $this->is_super_admin === true;
     }
+
+        // Relaciones
+    public function vehicles()
+    {
+        return $this->hasMany(Vehicle::class, 'user_id');
+    }
+
+    public function ridesComoChofer()
+    {
+        return $this->hasMany(Ride::class, 'chofer_id');
+    }
+
+    public function reservasComoPasajero()
+    {
+        return $this->hasMany(Reservation::class, 'pasajero_id');
+    }
+    
 }
