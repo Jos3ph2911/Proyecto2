@@ -9,6 +9,7 @@ use App\Http\Controllers\RideController;
 use App\Http\Controllers\PublicRideController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\DriverReservationController;
+use App\Http\Controllers\AdminUserController;
 
 // Página principal
 Route::get('/', function () {
@@ -76,6 +77,26 @@ Route::middleware(['auth', 'chofer'])->group(function () {
     [DriverReservationController::class, 'cancelByDriver'])
     ->name('driver.reservations.cancelByDriver');
 
+});
+
+// =============================
+// PANEL DE ADMINISTRACIÓN (USUARIOS)
+// =============================
+Route::middleware(['auth', 'admin'])->group(function () {
+    Route::get('/admin/usuarios', [AdminUserController::class, 'index'])
+        ->name('admin.users.index');
+
+    Route::get('/admin/usuarios/crear', [AdminUserController::class, 'create'])
+        ->name('admin.users.create');
+
+    Route::post('/admin/usuarios', [AdminUserController::class, 'store'])
+        ->name('admin.users.store');
+
+    Route::post('/admin/usuarios/{user}/estado', [AdminUserController::class, 'updateStatus'])
+        ->name('admin.users.updateStatus');
+
+    Route::delete('/admin/usuarios/{user}', [AdminUserController::class, 'destroy'])
+        ->name('admin.users.destroy');
 });
 
 

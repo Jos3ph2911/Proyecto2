@@ -18,11 +18,11 @@ return new class extends Migration
             $table->string('nombre');
             $table->string('apellido');
             $table->string('cedula')->unique();
-            $table->date('fecha_nacimiento');
+            $table->date('fecha_nacimiento')->nullable();
             $table->string('telefono')->nullable();
-            $table->string('foto')->nullable(); // ruta en storage/app/public
+            $table->string('foto')->nullable();
 
-            // Correo y autenticación
+            // Credenciales
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
@@ -31,10 +31,8 @@ return new class extends Migration
             $table->enum('rol', ['administrador', 'chofer', 'pasajero'])->default('pasajero');
             $table->enum('estado', ['PENDIENTE', 'ACTIVO', 'INACTIVO'])->default('PENDIENTE');
 
-            // Activación por correo
+            // Activación y super admin
             $table->string('token_activacion')->nullable();
-
-            // Super admin
             $table->boolean('is_super_admin')->default(false);
 
             $table->rememberToken();
