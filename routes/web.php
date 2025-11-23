@@ -8,6 +8,7 @@ use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\RideController;
 use App\Http\Controllers\PublicRideController;
 use App\Http\Controllers\ReservationController;
+use App\Http\Controllers\DriverReservationController;
 
 // Página principal
 Route::get('/', function () {
@@ -62,6 +63,19 @@ Route::middleware(['auth', 'pasajero'])->group(function () {
 Route::middleware(['auth', 'chofer'])->group(function () {
     Route::resource('vehicles', VehicleController::class)->except(['show']);
     Route::resource('rides', RideController::class)->except(['show']);
+    Route::get('/rides/{ride}/reservas', [DriverReservationController::class, 'index'])
+    ->name('driver.reservations.index');
+
+    Route::post('/reservas/{reservation}/aceptar', [DriverReservationController::class, 'accept'])
+    ->name('driver.reservations.accept');
+
+    Route::post('/reservas/{reservation}/rechazar', [DriverReservationController::class, 'reject'])
+    ->name('driver.reservations.reject');
+
+    Route::post('/reservas/{reservation}/cancelar-chofer',
+    [DriverReservationController::class, 'cancelByDriver'])
+    ->name('driver.reservations.cancelByDriver');
+
 });
 
 

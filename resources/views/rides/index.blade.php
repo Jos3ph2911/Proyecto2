@@ -95,6 +95,12 @@
                     <td>{{ number_format($ride->costo_por_espacio, 2) }}</td>
 
                     <td>
+                        {{-- Enlace al panel de reservas de este ride --}}
+                        <a href="{{ route('driver.reservations.index', $ride) }}" class="btn-link">
+                            Reservas
+                        </a>
+                        <br>
+
                         <a href="{{ route('rides.edit', $ride) }}" class="btn-link">
                             Editar
                         </a>
