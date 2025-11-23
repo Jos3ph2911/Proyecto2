@@ -21,16 +21,19 @@ class Ride extends Model
         'espacios_disponibles',
     ];
 
-    public function chofer()
-    {
-        return $this->belongsTo(User::class, 'chofer_id');
-    }
-
+    // Vehículo asociado
     public function vehicle()
     {
         return $this->belongsTo(Vehicle::class);
     }
 
+    // Usuario chofer (tabla users)
+    public function chofer()
+    {
+        return $this->belongsTo(User::class, 'chofer_id');
+    }
+
+    // Reservas asociadas a este ride
     public function reservations()
     {
         return $this->hasMany(Reservation::class);

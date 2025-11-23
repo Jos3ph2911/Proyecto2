@@ -14,6 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Aquí registramos alias de middlewares de ruta
         $middleware->alias([
             'chofer' => \App\Http\Middleware\EnsureUserIsChofer::class,
+            'pasajero' => \App\Http\Middleware\EnsureUserIsPasajero::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
