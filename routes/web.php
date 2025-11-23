@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\VehicleController;
+use App\Http\Controllers\RideController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -20,9 +21,10 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// Vehículos (solo chofer)
+// Vehículos y Rides (solo chofer)
 Route::middleware(['auth', 'chofer'])->group(function () {
     Route::resource('vehicles', VehicleController::class)->except(['show']);
+    Route::resource('rides', RideController::class)->except(['show']);
 });
 
 require __DIR__.'/auth.php';

@@ -42,6 +42,7 @@
         <table>
             <thead>
             <tr>
+                <th>Foto</th>
                 <th>Placa</th>
                 <th>Marca</th>
                 <th>Modelo</th>
@@ -52,6 +53,15 @@
             <tbody>
             @foreach ($vehicles as $vehicle)
                 <tr>
+                    <td>
+                        @if ($vehicle->foto)
+                            <img src="{{ asset('storage/' . $vehicle->foto) }}"
+                                 alt="Foto vehículo"
+                                 style="width:70px; height:50px; object-fit:cover; border-radius:4px;">
+                        @else
+                            <span style="font-size:12px; color:#777;">Sin foto</span>
+                        @endif
+                    </td>
                     <td>{{ $vehicle->placa }}</td>
                     <td>{{ $vehicle->marca }}</td>
                     <td>{{ $vehicle->modelo }}</td>
