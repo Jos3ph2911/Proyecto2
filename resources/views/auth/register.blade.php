@@ -1,108 +1,134 @@
-<x-guest-layout>
-    <x-auth-card>
-        <x-slot name="logo">
-            <a href="/">
-                <h1 class="text-2xl font-bold">Aventones</h1>
-            </a>
-        </x-slot>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Registro - Aventones</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {{-- Si tienes Vite/Tailwind activado, puedes dejar esto, si no, no pasa nada --}}
+    @vite('resources/css/app.css')
+</head>
+<body class="bg-gray-100">
+    <div class="min-h-screen flex flex-col justify-center items-center">
+        <div class="w-full max-w-md bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+            <h1 class="text-2xl font-bold mb-4 text-center">Registro - Aventones</h1>
 
-        <!-- Mensajes de estado -->
-        @if (session('status'))
-            <div class="mb-4 font-medium text-sm text-green-600">
-                {{ session('status') }}
-            </div>
-        @endif
+            {{-- Mensajes de estado --}}
+            @if (session('status'))
+                <div class="mb-4 font-medium text-sm text-green-600">
+                    {{ session('status') }}
+                </div>
+            @endif
 
-        <!-- Errores de validación -->
-        <x-auth-validation-errors class="mb-4" :errors="$errors" />
+            {{-- Errores de validación --}}
+            @if ($errors->any())
+                <div class="mb-4">
+                    <div class="font-medium text-red-600">
+                        {{ __('Ups, ocurrió un problema con tus datos.') }}
+                    </div>
 
-        <form method="POST" action="{{ route('register') }}">
-            @csrf
+                    <ul class="mt-3 list-disc list-inside text-sm text-red-600">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
 
-            {{-- NOMBRE --}}
-            <div>
-                <x-input-label for="nombre" :value="__('Nombre')" />
-                <x-text-input id="nombre" class="block mt-1 w-full"
-                              type="text" name="nombre"
-                              :value="old('nombre')" required autofocus />
-            </div>
+            <form method="POST" action="{{ route('register') }}">
+                @csrf
 
-            {{-- APELLIDO --}}
-            <div class="mt-4">
-                <x-input-label for="apellido" :value="__('Apellido')" />
-                <x-text-input id="apellido" class="block mt-1 w-full"
-                              type="text" name="apellido"
-                              :value="old('apellido')" required />
-            </div>
+                {{-- NOMBRE --}}
+                <div>
+                    <label for="nombre" class="block text-sm font-medium text-gray-700">Nombre</label>
+                    <input id="nombre" name="nombre" type="text"
+                           value="{{ old('nombre') }}"
+                           required autofocus
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                </div>
 
-            {{-- CÉDULA --}}
-            <div class="mt-4">
-                <x-input-label for="cedula" :value="__('Cédula')" />
-                <x-text-input id="cedula" class="block mt-1 w-full"
-                              type="text" name="cedula"
-                              :value="old('cedula')" required />
-            </div>
+                {{-- APELLIDO --}}
+                <div class="mt-4">
+                    <label for="apellido" class="block text-sm font-medium text-gray-700">Apellido</label>
+                    <input id="apellido" name="apellido" type="text"
+                           value="{{ old('apellido') }}"
+                           required
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                </div>
 
-            {{-- FECHA DE NACIMIENTO --}}
-            <div class="mt-4">
-                <x-input-label for="fecha_nacimiento" :value="__('Fecha de nacimiento')" />
-                <x-text-input id="fecha_nacimiento" class="block mt-1 w-full"
-                              type="date" name="fecha_nacimiento"
-                              :value="old('fecha_nacimiento')" required />
-            </div>
+                {{-- CÉDULA --}}
+                <div class="mt-4">
+                    <label for="cedula" class="block text-sm font-medium text-gray-700">Cédula</label>
+                    <input id="cedula" name="cedula" type="text"
+                           value="{{ old('cedula') }}"
+                           required
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                </div>
 
-            {{-- TELÉFONO --}}
-            <div class="mt-4">
-                <x-input-label for="telefono" :value="__('Teléfono')" />
-                <x-text-input id="telefono" class="block mt-1 w-full"
-                              type="text" name="telefono"
-                              :value="old('telefono')" />
-            </div>
+                {{-- FECHA DE NACIMIENTO --}}
+                <div class="mt-4">
+                    <label for="fecha_nacimiento" class="block text-sm font-medium text-gray-700">Fecha de nacimiento</label>
+                    <input id="fecha_nacimiento" name="fecha_nacimiento" type="date"
+                           value="{{ old('fecha_nacimiento') }}"
+                           required
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                </div>
 
-            {{-- ROL --}}
-            <div class="mt-4">
-                <x-input-label for="rol" :value="__('Rol')" />
-                <select id="rol" name="rol" class="block mt-1 w-full border-gray-300 rounded-md shadow-sm">
-                    <option value="">-- Selecciona un rol --</option>
-                    <option value="chofer" {{ old('rol') == 'chofer' ? 'selected' : '' }}>Chofer</option>
-                    <option value="pasajero" {{ old('rol') == 'pasajero' ? 'selected' : '' }}>Pasajero</option>
-                </select>
-            </div>
+                {{-- TELÉFONO --}}
+                <div class="mt-4">
+                    <label for="telefono" class="block text-sm font-medium text-gray-700">Teléfono</label>
+                    <input id="telefono" name="telefono" type="text"
+                           value="{{ old('telefono') }}"
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                </div>
 
-            {{-- EMAIL --}}
-            <div class="mt-4">
-                <x-input-label for="email" :value="__('Correo electrónico')" />
-                <x-text-input id="email" class="block mt-1 w-full"
-                              type="email" name="email"
-                              :value="old('email')" required />
-            </div>
+                {{-- ROL --}}
+                <div class="mt-4">
+                    <label for="rol" class="block text-sm font-medium text-gray-700">Rol</label>
+                    <select id="rol" name="rol"
+                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                        <option value="">-- Selecciona un rol --</option>
+                        <option value="chofer" {{ old('rol') == 'chofer' ? 'selected' : '' }}>Chofer</option>
+                        <option value="pasajero" {{ old('rol') == 'pasajero' ? 'selected' : '' }}>Pasajero</option>
+                    </select>
+                </div>
 
-            {{-- PASSWORD --}}
-            <div class="mt-4">
-                <x-input-label for="password" :value="__('Contraseña')" />
-                <x-text-input id="password" class="block mt-1 w-full"
-                              type="password"
-                              name="password"
-                              required autocomplete="new-password" />
-            </div>
+                {{-- EMAIL --}}
+                <div class="mt-4">
+                    <label for="email" class="block text-sm font-medium text-gray-700">Correo electrónico</label>
+                    <input id="email" name="email" type="email"
+                           value="{{ old('email') }}"
+                           required
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                </div>
 
-            {{-- CONFIRM PASSWORD --}}
-            <div class="mt-4">
-                <x-input-label for="password_confirmation" :value="__('Confirmar contraseña')" />
-                <x-text-input id="password_confirmation" class="block mt-1 w-full"
-                              type="password"
-                              name="password_confirmation" required />
-            </div>
+                {{-- PASSWORD --}}
+                <div class="mt-4">
+                    <label for="password" class="block text-sm font-medium text-gray-700">Contraseña</label>
+                    <input id="password" name="password" type="password"
+                           required autocomplete="new-password"
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                </div>
 
-            <div class="flex items-center justify-end mt-4">
-                <a class="underline text-sm text-gray-600 hover:text-gray-900" href="{{ route('login') }}">
-                    {{ __('¿Ya tienes cuenta?') }}
-                </a>
+                {{-- CONFIRM PASSWORD --}}
+                <div class="mt-4">
+                    <label for="password_confirmation" class="block text-sm font-medium text-gray-700">Confirmar contraseña</label>
+                    <input id="password_confirmation" name="password_confirmation" type="password"
+                           required
+                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                </div>
 
-                <x-primary-button class="ml-4">
-                    {{ __('Registrarse') }}
-                </x-primary-button>
-            </div>
-        </form>
-    </x-auth-card>
-</x-guest-layout>
+                <div class="flex items-center justify-between mt-6">
+                    <a href="{{ route('login') }}" class="text-sm text-blue-600 hover:underline">
+                        ¿Ya tienes cuenta?
+                    </a>
+
+                    <button type="submit"
+                            class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded">
+                        Registrarse
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
