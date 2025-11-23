@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Ride;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -14,13 +15,38 @@ class AdminUserController extends Controller
      */
     public function index()
     {
-        $currentUser = Auth::user();
+        // Todos los usuarios para la tabla principal
+        $users = User::orderBy('id')->get();
 
-        $users = User::orderBy('rol')
-            ->orderBy('nombre')
+        // Métricas generales
+        $totalUsers      = User::count();
+        $totalAdmins     = User::where('rol', 'administrador')->count();
+        $totalChoferes   = User::where('rol', 'chofer')->count();
+        $totalPasajeros  = User::where('rol', 'pasajero')->count();
+
+        $totalActivos    = User::where('estado', 'ACTIVO')->count();
+        $totalInactivos  = User::where('estado', 'INACTIVO')->count();
+        $totalPendientes = User::where('estado', 'PENDIENTE')->count();
+
+        // Viajes solo de choferes ACTIVO
+        $rides = Ride::with(['chofer', 'vehicle'])
+            ->whereHas('chofer', function ($q) {
+                $q->where('estado', 'ACTIVO');
+            })
+            ->orderBy('fecha_hora', 'desc')
             ->get();
 
-        return view('admin.users.index', compact('users', 'currentUser'));
+        return view('admin.users.index', compact(
+            'users',
+            'totalUsers',
+            'totalAdmins',
+            'totalChoferes',
+            'totalPasajeros',
+            'totalActivos',
+            'totalInactivos',
+            'totalPendientes',
+            'rides'
+        ));
     }
 
     /**
@@ -29,7 +55,6 @@ class AdminUserController extends Controller
     public function create()
     {
         $currentUser = Auth::user();
-
         return view('admin.users.create', compact('currentUser'));
     }
 
@@ -40,7 +65,6 @@ class AdminUserController extends Controller
     {
         $currentUser = Auth::user();
 
-        // Cualquier admin (incluyendo super admin) puede crear admins
         if (!$currentUser->esAdministrador()) {
             abort(403, 'No tienes permiso para crear administradores.');
         }
@@ -77,8 +101,7 @@ class AdminUserController extends Controller
 
     /**
      * Cambiar estado (PENDIENTE / ACTIVO / INACTIVO).
-     * Solo SUPER ADMIN puede cambiar estado de administradores.
-     * Cualquier admin puede cambiar estado de choferes/pasajeros.
+     * Si un pasajero pasa a INACTIVO → liberar reservas.
      */
     public function updateStatus(Request $request, User $user)
     {
@@ -93,43 +116,66 @@ class AdminUserController extends Controller
             return back()->with('status', 'No se puede modificar el estado del Super Admin.');
         }
 
-        // 2. No desactivar tu propia cuenta
+        // 2. No desactivar la cuenta propia
         if ($currentUser->id === $user->id && $request->estado !== 'ACTIVO') {
             return back()->with('status', 'No puedes desactivar tu propia cuenta mientras estás conectado.');
         }
 
-        // 3. Solo Super Admin puede cambiar estado de administradores
+        // 3. Solo Super Admin puede modificar administradores
         if ($user->esAdministrador() && !$currentUser->esSuperAdmin()) {
             return back()->with('status', 'Solo el Super Admin puede cambiar el estado de otros administradores.');
         }
 
+        // Guardar nuevo estado
         $user->estado = $request->estado;
         $user->save();
+
+        /**
+         * 🟦 NUEVA LÓGICA:
+         * Si el usuario desactivado es PASAJERO → cancelar reservas y liberar espacios.
+         */
+        if ($user->esPasajero() && $user->estado === 'INACTIVO') {
+
+            $reservas = $user->reservasComoPasajero()
+                ->whereIn('estado', ['PENDIENTE', 'ACEPTADA'])
+                ->get();
+
+            foreach ($reservas as $reserva) {
+
+                $ride = $reserva->ride;
+
+                // Si estaba ACEPTADA → devolver espacio
+                if ($reserva->estado === 'ACEPTADA') {
+                    $ride->espacios_disponibles += 1;
+                    $ride->save();
+                }
+
+                // Marcar como cancelada
+                $reserva->estado = 'CANCELADA';
+                $reserva->save();
+            }
+        }
 
         return back()->with('status', 'Estado del usuario actualizado correctamente.');
     }
 
     /**
      * Eliminar usuario.
-     * Solo SUPER ADMIN puede eliminar admins.
      */
     public function destroy(User $user)
     {
         $currentUser = Auth::user();
 
-        // 1. No borrar al Super Admin
         if ($user->esSuperAdmin()) {
             return back()->with('status', 'No se puede eliminar al Super Admin.');
         }
 
-        // 2. No borrar tu propia cuenta
         if ($currentUser->id === $user->id) {
             return back()->with('status', 'No puedes eliminar tu propia cuenta.');
         }
 
-        // 3. Solo el Super Admin puede borrar administradores
         if ($user->esAdministrador() && !$currentUser->esSuperAdmin()) {
-            return back()->with('status', 'Solo el Super Admin puede eliminar cuentas de administradores.');
+            return back()->with('status', 'Solo el Super Admin puede eliminar administradores.');
         }
 
         $user->delete();

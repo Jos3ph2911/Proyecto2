@@ -13,7 +13,11 @@ class PublicRideController extends Controller
     {
         $query = Ride::with(['vehicle', 'chofer'])
             ->where('fecha_hora', '>=', now())
-            ->orderBy('fecha_hora', 'asc');
+            ->orderBy('fecha_hora', 'asc')
+            //Solo choferes ACTIVO
+            ->whereHas('chofer', function ($q) {
+                $q->where('estado', 'ACTIVO');
+            });
 
         // Filtros por origen/destino
         if ($request->filled('salida')) {
@@ -29,7 +33,7 @@ class PublicRideController extends Controller
         $user = Auth::user();
         $reservationsByRide = [];
 
-        // Si es pasajero, cargamos sus reservas PENDIENTE/ACEPTADA agrupadas por ride
+        // Si es pasajero, agrupamos sus reservas PENDIENTE/ACEPTADA por ride
         if ($user && $user->esPasajero()) {
             $reservations = Reservation::where('pasajero_id', $user->id)
                 ->whereIn('estado', ['PENDIENTE', 'ACEPTADA'])
