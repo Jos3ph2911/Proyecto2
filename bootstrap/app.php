@@ -11,7 +11,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        // Aquí registramos alias de middlewares de ruta
+        $middleware->alias([
+            'chofer' => \App\Http\Middleware\EnsureUserIsChofer::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
