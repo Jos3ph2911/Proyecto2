@@ -34,6 +34,7 @@
             </ul>
         </div>
     @endif
+    <a href="{{ route('rides.index') }}" class="btn-link">Volver a mis rides</a>
 
     <form method="POST" action="{{ route('rides.update', $ride) }}">
         @csrf

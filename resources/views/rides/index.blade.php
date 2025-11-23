@@ -17,6 +17,7 @@
         .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .status { color: green; margin-bottom: 10px; }
         .vehiculo-img { width: 80px; height: 60px; object-fit: cover; border-radius: 4px; display: block; }
+        .top-right { display:flex; gap:8px; align-items:center; }
     </style>
 </head>
 <body>
@@ -32,9 +33,25 @@
     <div class="top-bar">
         <a href="{{ route('dashboard') }}" class="btn-link">Volver al dashboard</a>
 
-        <a href="{{ route('rides.create') }}" class="btn btn-primary">
-            + Nuevo ride
-        </a>
+        <div class="top-right">
+            {{-- Ir al panel de vehículos --}}
+            <a href="{{ route('vehicles.index') }}" class="btn btn-link">
+                Mis vehículos
+            </a>
+
+            {{-- Crear nuevo ride --}}
+            <a href="{{ route('rides.create') }}" class="btn btn-primary">
+                + Nuevo ride
+            </a>
+
+            {{-- Cerrar sesión (solo panel principal) --}}
+            <form method="POST" action="{{ route('logout') }}" style="display:inline-block; margin-left:4px;">
+                @csrf
+                <button type="submit" class="btn btn-danger" style="border:none; cursor:pointer;">
+                    Cerrar sesión
+                </button>
+            </form>
+        </div>
     </div>
 
     @if ($rides->isEmpty())
@@ -95,7 +112,7 @@
                     <td>{{ number_format($ride->costo_por_espacio, 2) }}</td>
 
                     <td>
-                        {{-- Enlace al panel de reservas de este ride --}}
+                        {{-- Panel de reservas de este ride --}}
                         <a href="{{ route('driver.reservations.index', $ride) }}" class="btn-link">
                             Reservas
                         </a>
@@ -110,7 +127,7 @@
                               onsubmit="return confirm('¿Seguro que deseas eliminar este ride?');">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="btn btn-danger" style="border:none; cursor:pointer;">
+                            <button type="submit" class="btn btn-danger" style="border:none; cursor:pointer; margin-top:4px;">
                                 Eliminar
                             </button>
                         </form>

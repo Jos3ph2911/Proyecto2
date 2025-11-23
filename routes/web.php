@@ -10,14 +10,31 @@ use App\Http\Controllers\PublicRideController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\DriverReservationController;
 use App\Http\Controllers\AdminUserController;
+use Illuminate\Support\Facades\Auth;
 
 // Página principal
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', [PublicRideController::class, 'index'])->name('public.rides.index');
 
 // Dashboard (autenticado + verificado)
 Route::get('/dashboard', function () {
+    $user = Auth::user();
+
+    if ($user->esAdministrador()) {
+        // Super admin y admins normales
+        return redirect()->route('admin.users.index');
+    }
+
+    if ($user->esChofer()) {
+        // Panel principal de chofer: Mis rides
+        return redirect()->route('rides.index');
+    }
+
+    if ($user->esPasajero()) {
+        // Panel principal de pasajero: Rides disponibles
+        return redirect()->route('public.rides.index');
+    }
+
+  
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 

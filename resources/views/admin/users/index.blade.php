@@ -19,18 +19,29 @@
         .btn { padding: 4px 8px; border-radius: 4px; font-size: 12px; text-decoration: none; border:none; cursor:pointer; }
         .btn-delete { background: #dc2626; color: #fff; }
         .btn-state { background: #1d4ed8; color: #fff; }
+        .btn-logout { background: #6b7280; color:#fff; }
         select { font-size: 12px; padding: 2px 4px; }
+        .top-bar { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
     </style>
 </head>
 <body>
 <div class="container">
     <h1>Administración de usuarios</h1>
 
-    <a href="{{ route('dashboard') }}" class="btn-state">Volver al dashboard</a>
-    <a href="{{ route('admin.users.create') }}" class="btn-state" style="margin-top:10px; display:inline-block;">
-    + Nuevo administrador
-    </a>
+    <div class="top-bar">
+        <div>
+            <a href="{{ route('dashboard') }}" class="btn-state">Volver al dashboard</a>
+            <a href="{{ route('admin.users.create') }}" class="btn-state" style="margin-left:8px;">
+                + Nuevo administrador
+            </a>
+        </div>
 
+        {{-- Logout solo en panel principal --}}
+        <form method="POST" action="{{ route('logout') }}">
+            @csrf
+            <button type="submit" class="btn btn-logout">Cerrar sesión</button>
+        </form>
+    </div>
 
     @if (session('status'))
         <div class="status-msg">{{ session('status') }}</div>
@@ -74,12 +85,11 @@
                     {{-- Cambiar estado --}}
                     <form action="{{ route('admin.users.updateStatus', $user) }}" method="POST" style="display:inline-block;">
                         @csrf
-                    <select name="estado" onchange="this.form.submit()">
-                        <option value="PENDIENTE" {{ $user->estado === 'PENDIENTE' ? 'selected' : '' }}>PENDIENTE</option>
-                        <option value="ACTIVO"    {{ $user->estado === 'ACTIVO' ? 'selected' : '' }}>ACTIVO</option>
-                        <option value="INACTIVO"  {{ $user->estado === 'INACTIVO' ? 'selected' : '' }}>INACTIVO</option>
-                    </select>
-
+                        <select name="estado" onchange="this.form.submit()">
+                            <option value="PENDIENTE" {{ $user->estado === 'PENDIENTE' ? 'selected' : '' }}>PENDIENTE</option>
+                            <option value="ACTIVO"    {{ $user->estado === 'ACTIVO' ? 'selected' : '' }}>ACTIVO</option>
+                            <option value="INACTIVO"  {{ $user->estado === 'INACTIVO' ? 'selected' : '' }}>INACTIVO</option>
+                        </select>
                     </form>
 
                     {{-- Eliminar usuario --}}

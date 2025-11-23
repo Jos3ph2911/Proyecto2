@@ -8,119 +8,177 @@
         .container { max-width: 1100px; margin: 30px auto; background: #fff; padding: 20px; border-radius: 8px; }
         h1 { margin-top: 0; }
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { border: 1px solid #ccc; padding: 6px; text-align: left; font-size: 13px; }
+        th, td { border: 1px solid #ccc; padding: 6px; font-size: 13px; text-align: left; }
         th { background: #f0f0f0; }
-        .filtros { display: flex; gap: 10px; margin-top: 10px; }
-        .filtros input { padding: 4px; }
-        .btn { display: inline-block; padding: 5px 9px; font-size: 13px; text-decoration: none; border-radius: 4px; }
-        .btn-primary { background: #1d4ed8; color: #fff; border: none; cursor: pointer; }
-        .btn-disabled { background: #9ca3af; color: #fff; border: none; cursor: not-allowed; }
-        .vehiculo-img { width: 80px; height: 60px; object-fit: cover; border-radius: 4px; display: block; }
-        .status { color: green; margin-top: 10px; }
-        .error { color: #b91c1c; margin-top: 10px; }
+        .filters { display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; }
+        .filters input { padding:4px 6px; font-size:13px; }
+        .btn { padding: 6px 10px; border-radius: 4px; text-decoration: none; border:none; cursor:pointer; font-size:13px; }
+        .btn-primary { background: #1d4ed8; color:#fff; }
+        .btn-secondary { background: #6b7280; color:#fff; }
+        .btn-link { color:#1d4ed8; text-decoration: underline; font-size:13px; }
+        .vehiculo-img { width: 80px; height: 60px; object-fit: cover; border-radius: 4px; display:block; }
+        .status-msg { margin-top: 10px; color: green; }
+        .badge-full { background:#dc2626; color:#fff; padding:2px 6px; border-radius:4px; font-size:11px; }
+        .badge-info { background:#0ea5e9; color:#fff; padding:2px 6px; border-radius:4px; font-size:11px; }
+        .top-bar { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
     </style>
 </head>
 <body>
 <div class="container">
-    <h1>Rides disponibles</h1>
+    <div class="top-bar">
+        <h1>Rides disponibles</h1>
 
-    <div class="filtros">
-        <form method="GET" action="{{ route('public.rides.index') }}">
-            <input type="text" name="salida" placeholder="Lugar de salida"
-                   value="{{ request('salida') }}">
-            <input type="text" name="llegada" placeholder="Lugar de llegada"
-                   value="{{ request('llegada') }}">
-            <button type="submit" class="btn btn-primary">Filtrar</button>
-        </form>
+        {{-- Zona derecha: según si hay usuario y rol --}}
+        <div>
+            @if ($user && $user->esPasajero())
+                <a href="{{ route('reservations.passenger.index') }}" class="btn btn-secondary" style="margin-right:8px;">
+                    Mis reservas
+                </a>
+
+                {{-- Aquí más adelante se podrá poner el icono de perfil --}}
+
+                <form method="POST" action="{{ route('logout') }}" style="display:inline-block;">
+                    @csrf
+                    <button type="submit" class="btn btn-secondary">
+                        Cerrar sesión
+                    </button>
+                </form>
+            @elseif ($user)
+                {{-- Otro tipo de usuario logueado (admin/chofer) --}}
+                <form method="POST" action="{{ route('logout') }}" style="display:inline-block;">
+                    @csrf
+                    <button type="submit" class="btn btn-secondary">
+                        Cerrar sesión
+                    </button>
+                </form>
+            @else
+                <a href="{{ route('login') }}" class="btn btn-secondary">Iniciar sesión</a>
+            @endif
+        </div>
     </div>
 
-    @if (session('status'))
-        <div class="status">
-            {{ session('status') }}
-        </div>
-    @endif
+    {{-- Filtros de búsqueda --}}
+    <form method="GET" action="{{ route('public.rides.index') }}">
+        <div class="filters">
+            <div>
+                <label for="salida" style="font-size:12px; display:block;">Lugar de salida</label>
+                <input type="text" id="salida" name="salida" value="{{ request('salida') }}">
+            </div>
 
-    @if ($errors->any())
-        <div class="error">
-            @foreach ($errors->all() as $error)
-                <div>- {{ $error }}</div>
-            @endforeach
+            <div>
+                <label for="llegada" style="font-size:12px; display:block;">Lugar de llegada</label>
+                <input type="text" id="llegada" name="llegada" value="{{ request('llegada') }}">
+            </div>
+
+            <div style="display:flex; align-items:flex-end; gap:6px;">
+                <button type="submit" class="btn btn-primary">Buscar</button>
+                <a href="{{ route('public.rides.index') }}" class="btn btn-secondary">Limpiar</a>
+            </div>
         </div>
+    </form>
+
+    @if (session('status'))
+        <div class="status-msg">{{ session('status') }}</div>
     @endif
 
     @if ($rides->isEmpty())
-        <p>No hay rides disponibles por el momento.</p>
+        <p style="margin-top:15px;">No hay rides disponibles con los filtros seleccionados.</p>
     @else
         <table>
             <thead>
             <tr>
                 <th>Foto</th>
                 <th>Placa</th>
+                <th>Marca</th>
+                <th>Modelo</th>
+                <th>Título</th>
                 <th>Origen</th>
                 <th>Destino</th>
                 <th>Fecha y hora</th>
                 <th>Costo x espacio</th>
-                <th>Espacios disp.</th>
+                <th>Esp. disp.</th>
                 <th>Chofer</th>
                 <th>Acción</th>
             </tr>
             </thead>
+
             <tbody>
             @foreach ($rides as $ride)
                 @php
-                    $vehicle = $ride->vehicle;
-                    $maxPasajeros = $vehicle ? max(0, $vehicle->capacidad - 1) : 0;
-                    $ocupados = $ride->reservations()
-                        ->whereIn('estado', ['PENDIENTE', 'ACEPTADA'])
-                        ->count();
-                    $disponibles = max(0, min($ride->espacios_totales, $maxPasajeros) - $ocupados);
+                    $reservasDelPasajero = collect();
+                    $yaReservoEsteRide = false;
+
+                    if ($user && $user->esPasajero() && isset($reservationsByRide[$ride->id])) {
+                        $reservasDelPasajero = $reservationsByRide[$ride->id];
+                        $yaReservoEsteRide = $reservasDelPasajero->isNotEmpty();
+                    }
                 @endphp
 
                 <tr>
+                    {{-- Foto --}}
                     <td>
-                        @if ($vehicle && $vehicle->foto)
-                            <img src="{{ asset('storage/' . $vehicle->foto) }}"
+                        @if ($ride->vehicle && $ride->vehicle->foto)
+                            <img src="{{ asset('storage/' . $ride->vehicle->foto) }}"
                                  alt="Vehículo"
                                  class="vehiculo-img">
                         @else
                             <span style="font-size:12px; color:#777;">Sin foto</span>
                         @endif
                     </td>
-                    <td>{{ $vehicle->placa ?? 'N/A' }}</td>
+
+                    {{-- Datos vehículo --}}
+                    <td>{{ $ride->vehicle->placa ?? 'N/A' }}</td>
+                    <td>{{ $ride->vehicle->marca ?? 'N/A' }}</td>
+                    <td>{{ $ride->vehicle->modelo ?? 'N/A' }}</td>
+
+                    {{-- Datos ride --}}
+                    <td>{{ $ride->titulo }}</td>
                     <td>{{ $ride->lugar_salida }}</td>
                     <td>{{ $ride->lugar_llegada }}</td>
                     <td>{{ $ride->fecha_hora }}</td>
                     <td>{{ number_format($ride->costo_por_espacio, 2) }}</td>
-                    <td>{{ $disponibles }}</td>
+                    <td>{{ $ride->espacios_disponibles }}</td>
+
+                    {{-- Chofer --}}
                     <td>
                         @if ($ride->chofer)
-                        {{ $ride->chofer->nombre }} {{ $ride->chofer->apellido }}
+                            {{ $ride->chofer->nombre }} {{ $ride->chofer->apellido }}
                         @else
-                         N/A
+                            N/A
                         @endif
                     </td>
 
+                    {{-- Acción --}}
                     <td>
                         @if (!$user)
-                            <span style="font-size:12px;">Inicia sesión para reservar</span>
-                        @elseif ($user->rol !== 'pasajero')
-                            <span style="font-size:12px;">Solo pasajeros pueden reservar</span>
-                        @elseif ($disponibles <= 0)
-                            <button class="btn btn-disabled" disabled>Sin espacios</button>
+                            {{-- Invitado: al intentar reservar, lo mandamos a login --}}
+                            <a href="{{ route('login') }}" class="btn btn-primary">
+                                Iniciar sesión para reservar
+                            </a>
+                        @elseif ($user->esPasajero())
+                            @if ($ride->espacios_disponibles <= 0)
+                                <span class="badge-full">Completo</span>
+                            @elseif ($yaReservoEsteRide)
+                                <span class="badge-info">Ya tienes una reserva en este ride</span>
+                            @else
+                                <form action="{{ route('reservations.store', $ride) }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="btn btn-primary">
+                                        Reservar
+                                    </button>
+                                </form>
+                            @endif
                         @else
-                            <form method="POST" action="{{ route('reservations.store', $ride) }}">
-                                @csrf
-                                <button type="submit" class="btn btn-primary">
-                                    Reservar
-                                </button>
-                            </form>
+                            <span style="font-size:12px; color:#777;">Solo pasajeros pueden reservar</span>
                         @endif
                     </td>
                 </tr>
             @endforeach
             </tbody>
+
         </table>
     @endif
+
 </div>
 </body>
 </html>

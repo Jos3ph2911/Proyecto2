@@ -33,6 +33,7 @@
             </ul>
         </div>
     @endif
+        <a href="{{ route('vehicles.index') }}" class="btn-link">Volver a mis vehículos</a>
 
     <form method="POST" action="{{ route('vehicles.store') }}" enctype="multipart/form-data">
         @csrf
@@ -64,6 +65,7 @@
             <button type="submit" class="btn btn-primary">
                 Guardar vehículo
             </button>
+            
         </div>
     </form>
 </div>
