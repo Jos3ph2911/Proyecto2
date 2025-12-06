@@ -9,6 +9,7 @@ use App\Http\Controllers\RideController;
 use App\Http\Controllers\PublicRideController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\DriverReservationController;
+use App\Http\Controllers\PassengerDashboardController;
 use App\Http\Controllers\AdminUserController;
 use Illuminate\Support\Facades\Auth;
 
@@ -30,11 +31,11 @@ Route::get('/dashboard', function () {
     }
 
     if ($user->esPasajero()) {
-        // Panel principal de pasajero: Rides disponibles
-        return redirect()->route('public.rides.index');
+        // Panel principal de pasajero: PANEL DEL PASAJERO
+        // ANTES: return redirect()->route('public.rides.index');
+        return redirect()->route('passenger.dashboard');
     }
-
-  
+ 
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
@@ -65,11 +66,18 @@ Route::post('/rides/{ride}/reservas', [ReservationController::class, 'store'])
     ->middleware(['auth', 'pasajero'])
     ->name('reservations.store');
 
-// Ver mis reservas (pasajero)
+// Rutas protegidas de pasajero
 Route::middleware(['auth', 'pasajero'])->group(function () {
+
+    // Panel del pasajero
+    Route::get('/panel-pasajero', [PassengerDashboardController::class, 'index'])
+        ->name('passenger.dashboard');
+
+    // Ver mis reservas (pasajero)
     Route::get('/mis-reservas', [ReservationController::class, 'indexPassenger'])
         ->name('reservations.passenger.index');
 
+    // Cancelar reserva
     Route::post('/reservas/{reservation}/cancelar', [ReservationController::class, 'cancel'])
         ->name('reservations.cancel');
 });
@@ -81,20 +89,22 @@ Route::middleware(['auth', 'pasajero'])->group(function () {
 Route::middleware(['auth', 'chofer'])->group(function () {
     Route::resource('vehicles', VehicleController::class)->except(['show']);
     Route::resource('rides', RideController::class)->except(['show']);
+
     Route::get('/rides/{ride}/reservas', [DriverReservationController::class, 'index'])
-    ->name('driver.reservations.index');
+        ->name('driver.reservations.index');
 
     Route::post('/reservas/{reservation}/aceptar', [DriverReservationController::class, 'accept'])
-    ->name('driver.reservations.accept');
+        ->name('driver.reservations.accept');
 
     Route::post('/reservas/{reservation}/rechazar', [DriverReservationController::class, 'reject'])
-    ->name('driver.reservations.reject');
+        ->name('driver.reservations.reject');
 
-    Route::post('/reservas/{reservation}/cancelar-chofer',
-    [DriverReservationController::class, 'cancelByDriver'])
-    ->name('driver.reservations.cancelByDriver');
-
+    Route::post(
+        '/reservas/{reservation}/cancelar-chofer',
+        [DriverReservationController::class, 'cancelByDriver']
+    )->name('driver.reservations.cancelByDriver');
 });
+
 
 // =============================
 // PANEL DE ADMINISTRACIÓN (USUARIOS)

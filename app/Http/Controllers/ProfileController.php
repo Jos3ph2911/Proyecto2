@@ -21,21 +21,46 @@ class ProfileController extends Controller
         ]);
     }
 
-    /**
-     * Update the user's profile information.
-     */
-    public function update(ProfileUpdateRequest $request): RedirectResponse
-    {
-        $request->user()->fill($request->validated());
+  /**
+ * Update the user's profile information.
+ */
+public function update(ProfileUpdateRequest $request): RedirectResponse
+{
+    $user = $request->user();
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
-        }
+    // 1) Actualizar los campos validados (nombre, email, etc.)
+    $user->fill($request->validated());
 
-        $request->user()->save();
-
-        return Redirect::route('profile.edit')->with('status', 'profile-updated');
+    if ($user->isDirty('email')) {
+        $user->email_verified_at = null;
     }
+
+    // 2) Si viene una foto nueva, la procesamos
+    if ($request->hasFile('foto')) {
+    $file = $request->file('foto');
+    $filename = time() . '_' . $file->getClientOriginalName();
+
+    // Carpeta public/perfiles
+    $destinationPath = public_path('perfiles');
+
+    if (! file_exists($destinationPath)) {
+        mkdir($destinationPath, 0755, true);
+    }
+
+    // Mover el archivo a public/perfiles
+    $file->move($destinationPath, $filename);
+
+    // Guardar solo el nombre del archivo en BD
+    $user->foto = $filename;
+}
+
+
+    // 3) Guardamos todos los cambios
+    $user->save();
+
+    return Redirect::route('profile.edit')->with('status', 'profile-updated');
+}
+
 
     /**
      * Delete the user's account.
