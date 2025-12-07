@@ -1,142 +1,255 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Mis rides - Aventones</title>
-    <style>
-        body { font-family: Arial, sans-serif; background: #f3f3f3; }
-        .container { max-width: 1100px; margin: 30px auto; background: #fff; padding: 20px; border-radius: 8px; }
-        h1 { margin-top: 0; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { border: 1px solid #ccc; padding: 6px; text-align: left; font-size: 13px; }
-        th { background: #f0f0f0; }
-        .btn { display: inline-block; padding: 6px 10px; font-size: 14px; text-decoration: none; border-radius: 4px; }
-        .btn-primary { background: #1d4ed8; color: #fff; }
-        .btn-danger { background: #dc2626; color: #fff; }
-        .btn-link { color: #1d4ed8; text-decoration: underline; }
-        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .status { color: green; margin-bottom: 10px; }
-        .vehiculo-img { width: 80px; height: 60px; object-fit: cover; border-radius: 4px; display: block; }
-        .top-right { display:flex; gap:8px; align-items:center; }
-    </style>
-</head>
-<body>
-<div class="container">
-    <h1>Mis rides</h1>
+{{-- resources/views/rides/index.blade.php --}}
 
-    @if (session('status'))
-        <div class="status">
-            {{ session('status') }}
+<x-app-layout>
+
+    {{-- HEADER IGUAL QUE PANEL DE PASAJERO --}}
+    <x-slot name="header">
+        <div class="flex items-center justify-between">
+
+            {{-- Lado izquierdo --}}
+            <div>
+                <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                    Panel del chofer
+                </h2>
+                <p class="mt-1 text-sm text-gray-600">
+                    Aquí podés ver y administrar todos tus rides como chofer.
+                </p>
+            </div>
+
+            {{-- Lado derecho: foto pequeña o iniciales --}}
+            @php
+                $user = Auth::user();
+                // Foto del chofer en public/perfiles/
+                $fotoPath = $user->foto ? asset('perfiles/' . $user->foto) : null;
+            @endphp
+
+            <div class="flex items-center">
+                {{-- CONTENEDOR FIJO 40x40 PARA EL AVATAR --}}
+                <div class="h-10 w-10 rounded-full overflow-hidden border border-gray-300 flex-shrink-0">
+                    @if ($fotoPath)
+                        {{-- Foto real del chofer, siempre ajustada al contenedor --}}
+                        <img
+    src="{{ $fotoPath }}"
+    alt="Foto de {{ $user->name }}"
+    style="
+        width: 40px;
+        height: 40px;
+        border-radius: 9999px;
+        object-fit: cover;
+        display: block;
+    "
+>
+
+                    @else
+                        {{-- Círculo con iniciales si no hay foto --}}
+                        <div class="h-full w-full bg-indigo-600 flex items-center justify-center text-white text-sm font-semibold">
+                            {{ strtoupper(mb_substr($user->name, 0, 1)) }}
+                        </div>
+                    @endif
+                </div>
+
+                {{-- Nombre + email --}}
+                <div class="ml-3 text-right">
+                    <div class="text-sm font-medium text-gray-900">
+                        {{ $user->name }}
+                    </div>
+                    <div class="text-xs text-gray-500">
+                        {{ $user->email }}
+                    </div>
+                </div>
+            </div>
         </div>
-    @endif
+    </x-slot>
 
-    <div class="top-bar">
-        <a href="{{ route('dashboard') }}" class="btn-link">Volver al dashboard</a>
+    {{-- CONTENIDO --}}
+    <div class="py-8">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
-        <div class="top-right">
-            {{-- Ir al panel de vehículos --}}
-            <a href="{{ route('vehicles.index') }}" class="btn btn-link">
-                Mis vehículos
-            </a>
+            {{-- Mensaje de estado --}}
+            @if (session('status'))
+                <div class="mb-4 text-sm text-green-700 bg-green-100 border border-green-200 px-4 py-3 rounded-lg">
+                    {{ session('status') }}
+                </div>
+            @endif
 
-            {{-- Crear nuevo ride --}}
-            <a href="{{ route('rides.create') }}" class="btn btn-primary">
-                + Nuevo ride
-            </a>
+            <div class="bg-white shadow-sm rounded-xl">
 
-            {{-- Cerrar sesión (solo panel principal) --}}
-            <form method="POST" action="{{ route('logout') }}" style="display:inline-block; margin-left:4px;">
-                @csrf
-                <button type="submit" class="btn btn-danger" style="border:none; cursor:pointer;">
-                    Cerrar sesión
-                </button>
-            </form>
+                {{-- Barra superior --}}
+                <div class="px-6 py-4 border-b border-gray-200 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900">
+                            Mis rides
+                        </h3>
+                        <p class="text-xs text-gray-500 mt-1">
+                            Administra tus rides publicados, revisa reservas y edita su información.
+                        </p>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-3">
+                        
+
+                        <a href="{{ route('vehicles.index') }}"
+                           class="inline-flex items-center rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                            Mis vehículos
+                        </a>
+
+                        <a href="{{ route('rides.create') }}"
+                           class="inline-flex items-center rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-700">
+                            + Nuevo ride
+                        </a>
+
+                        
+                    </div>
+
+                </div>
+
+                {{-- TABLA --}}
+                <div class="px-6 py-5">
+                    @if ($rides->isEmpty())
+                        <p class="text-sm text-gray-500">No tienes rides registrados.</p>
+                    @else
+
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200 text-sm">
+
+                                <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Foto</th>
+                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Placa</th>
+                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Marca</th>
+                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Modelo</th>
+                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Título</th>
+                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Origen</th>
+                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Destino</th>
+                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha y hora</th>
+                                    <th class="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Esp. totales</th>
+                                    <th class="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Esp. disp.</th>
+                                    <th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Costo x espacio</th>
+                                    <th class="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                                </tr>
+                                </thead>
+
+                                <tbody class="bg-white divide-y divide-gray-100">
+
+                                @foreach ($rides as $ride)
+                                    <tr>
+
+                                        {{-- FOTO DEL VEHÍCULO --}}
+                                        <td class="px-3 py-2 whitespace-nowrap">
+                                            @if ($ride->vehicle && $ride->vehicle->foto)
+                                                <img src="{{ asset('storage/' . $ride->vehicle->foto) }}"
+                                                     alt="Vehículo"
+                                                     class="h-14 w-20 object-cover rounded-md border border-gray-200">
+                                            @else
+                                                <span class="text-xs text-gray-400 italic">Sin foto</span>
+                                            @endif
+                                        </td>
+
+                                        <td class="px-3 py-2 whitespace-nowrap text-gray-900">{{ $ride->vehicle->placa ?? 'N/A' }}</td>
+                                        <td class="px-3 py-2 whitespace-nowrap text-gray-900">{{ $ride->vehicle->marca ?? 'N/A' }}</td>
+                                        <td class="px-3 py-2 whitespace-nowrap text-gray-900">{{ $ride->vehicle->modelo ?? 'N/A' }}</td>
+
+                                        <td class="px-3 py-2 whitespace-nowrap text-gray-900">{{ $ride->titulo }}</td>
+                                        <td class="px-3 py-2 whitespace-nowrap text-gray-900">{{ $ride->lugar_salida }}</td>
+                                        <td class="px-3 py-2 whitespace-nowrap text-gray-900">{{ $ride->lugar_llegada }}</td>
+                                        <td class="px-3 py-2 whitespace-nowrap text-gray-900">{{ $ride->fecha_hora }}</td>
+
+                                        <td class="px-3 py-2 text-center text-gray-900">{{ $ride->espacios_totales }}</td>
+                                        <td class="px-3 py-2 text-center text-gray-900">{{ $ride->espacios_disponibles }}</td>
+
+                                        <td class="px-3 py-2 text-right text-gray-900">
+                                            {{ number_format($ride->costo_por_espacio, 2) }}
+                                        </td>
+
+                                        {{-- ACCIONES --}}
+                                        <td class="px-3 py-2 whitespace-nowrap">
+    <div class="flex flex-col items-center gap-2">
+
+        {{-- RESERVAS (azul) --}}
+        <form method="GET" action="{{ route('driver.reservations.index', $ride) }}">
+            <button type="submit"
+                style="
+                    width: 120px;
+                    height: 38px;
+                    border-radius: 6px;
+                    background: #2563eb; /* azul */
+                    color: white;
+                    font-size: 14px;
+                    font-weight: 600;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    border: none;
+                ">
+                Reservas
+            </button>
+        </form>
+
+        {{-- EDITAR (gris claro con borde) --}}
+        <form method="GET" action="{{ route('rides.edit', $ride) }}">
+            <button type="submit"
+                style="
+                    width: 120px;
+                    height: 38px;
+                    border-radius: 6px;
+                    background: #f3f4f6;
+                    color: #374151;
+                    font-size: 14px;
+                    font-weight: 600;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    border: 1px solid #9ca3af;
+                ">
+                Editar
+            </button>
+        </form>
+
+        {{-- ELIMINAR (rojo) --}}
+        <form action="{{ route('rides.destroy', $ride) }}" method="POST"
+              onsubmit="return confirm('¿Seguro que deseas eliminar este ride?');">
+            @csrf
+            @method('DELETE')
+            <button type="submit"
+                style="
+                    width: 120px;
+                    height: 38px;
+                    border-radius: 6px;
+                    background: #dc2626;
+                    color: white;
+                    font-size: 14px;
+                    font-weight: 600;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    border: none;
+                ">
+                Eliminar
+            </button>
+        </form>
+
+    </div>
+</td>
+
+
+
+
+
+                                    </tr>
+                                @endforeach
+
+                                </tbody>
+                            </table>
+                        </div>
+
+                    @endif
+
+                </div>
+
+            </div>
+
         </div>
     </div>
 
-    @if ($rides->isEmpty())
-        <p>No tienes rides registrados.</p>
-    @else
-        <table>
-            <thead>
-            <tr>
-                <th>Foto</th>
-                <th>Placa</th>
-                <th>Marca</th>
-                <th>Modelo</th>
-                <th>Título</th>
-                <th>Origen</th>
-                <th>Destino</th>
-                <th>Fecha y hora</th>
-                <th>Esp. totales</th>
-                <th>Esp. disp.</th>
-                <th>Costo x espacio</th>
-                <th>Acciones</th>
-            </tr>
-            </thead>
-            <tbody>
-            @foreach ($rides as $ride)
-                <tr>
-                    <!-- FOTO SOLA -->
-                    <td>
-                        @if ($ride->vehicle && $ride->vehicle->foto)
-                            <img src="{{ asset('storage/' . $ride->vehicle->foto) }}"
-                                 alt="Vehículo"
-                                 class="vehiculo-img">
-                        @else
-                            <span style="font-size:12px; color:#777;">Sin foto</span>
-                        @endif
-                    </td>
-
-                    <!-- PLACA -->
-                    <td>
-                        {{ $ride->vehicle->placa ?? 'N/A' }}
-                    </td>
-
-                    <!-- MARCA -->
-                    <td>
-                        {{ $ride->vehicle->marca ?? 'N/A' }}
-                    </td>
-
-                    <!-- MODELO -->
-                    <td>
-                        {{ $ride->vehicle->modelo ?? 'N/A' }}
-                    </td>
-
-                    <td>{{ $ride->titulo }}</td>
-                    <td>{{ $ride->lugar_salida }}</td>
-                    <td>{{ $ride->lugar_llegada }}</td>
-                    <td>{{ $ride->fecha_hora }}</td>
-                    <td>{{ $ride->espacios_totales }}</td>
-                    <td>{{ $ride->espacios_disponibles }}</td>
-                    <td>{{ number_format($ride->costo_por_espacio, 2) }}</td>
-
-                    <td>
-                        {{-- Panel de reservas de este ride --}}
-                        <a href="{{ route('driver.reservations.index', $ride) }}" class="btn-link">
-                            Reservas
-                        </a>
-                        <br>
-
-                        <a href="{{ route('rides.edit', $ride) }}" class="btn-link">
-                            Editar
-                        </a>
-
-                        <form action="{{ route('rides.destroy', $ride) }}" method="POST"
-                              style="display:inline-block"
-                              onsubmit="return confirm('¿Seguro que deseas eliminar este ride?');">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-danger" style="border:none; cursor:pointer; margin-top:4px;">
-                                Eliminar
-                            </button>
-                        </form>
-                    </td>
-                </tr>
-            @endforeach
-            </tbody>
-        </table>
-    @endif
-</div>
-</body>
-</html>
+</x-app-layout>
