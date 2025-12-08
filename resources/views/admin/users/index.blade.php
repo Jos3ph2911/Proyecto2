@@ -46,7 +46,20 @@
             <a href="{{ route('admin.users.create') }}" class="btn btn-state" style="margin-left:8px;">
                 + Nuevo administrador
             </a>
+
+                    {{-- Botón para enviar recordatorios a choferes --}}
+        <form action="{{ route('admin.reservations.remind') }}" method="POST" style="display:inline-block; margin-left:8px;">
+            @csrf
+            <button type="submit" class="btn btn-state" style="background:#eab308; color:#000;">
+                Enviar recordatorios a choferes
+            </button>
+        </form>
+
+
+
         </div>
+
+        
 
         {{-- Logout solo aquí, panel principal de admin --}}
         <form method="POST" action="{{ route('logout') }}">

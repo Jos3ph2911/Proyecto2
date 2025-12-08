@@ -129,6 +129,9 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     Route::delete('/admin/usuarios/{user}', [AdminUserController::class, 'destroy'])
         ->name('admin.users.destroy');
+
+    Route::post('/admin/reservas/enviar-recordatorios', [AdminUserController::class, 'enviarRecordatoriosReservas'])
+        ->name('admin.reservations.remind');
 });
 
 

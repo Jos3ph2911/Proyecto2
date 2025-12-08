@@ -7,9 +7,25 @@ use App\Models\Ride;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Artisan;
 
 class AdminUserController extends Controller
 {
+
+    public function enviarRecordatoriosReservas(Request $request)
+{
+    // minutos de antigüedad de la reserva; si querés otro valor, cámbialo aquí
+    $minutes = 1;
+
+    // Ejecuta el comando Artisan que ya creamos
+    Artisan::call('reservations:remind-pending', [
+        'minutes' => $minutes,
+    ]);
+
+    // Mensaje para el admin
+    return back()->with('status', "Se enviaron recordatorios a los choferes con reservas pendientes de más de {$minutes} minutos.");
+}
+
     /**
      * Lista de usuarios (panel admin).
      */
