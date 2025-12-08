@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\ActivarCuentaMail;
 
 class RegisteredUserController extends Controller
 {
@@ -49,6 +51,9 @@ class RegisteredUserController extends Controller
             'estado'           => 'PENDIENTE',
             'token_activacion' => Str::random(64),
         ]);
+
+        Mail::to($user->email)->send(new ActivarCuentaMail($user));
+
 
         event(new Registered($user));
 

@@ -10,11 +10,16 @@ use App\Http\Controllers\PublicRideController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\DriverReservationController;
 use App\Http\Controllers\PassengerDashboardController;
+use App\Http\Controllers\Auth\ActivationController;
 use App\Http\Controllers\AdminUserController;
 use Illuminate\Support\Facades\Auth;
 
 // Página principal
 Route::get('/', [PublicRideController::class, 'index'])->name('public.rides.index');
+
+// Activación de cuenta por correo
+Route::get('/activar-cuenta/{token}', [ActivationController::class, 'activar'])
+    ->name('activar.cuenta');
 
 // Dashboard (autenticado + verificado)
 Route::get('/dashboard', function () {

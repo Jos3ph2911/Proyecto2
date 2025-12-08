@@ -178,8 +178,20 @@ class AdminUserController extends Controller
             return back()->with('status', 'Solo el Super Admin puede eliminar administradores.');
         }
 
-        $user->delete();
+        // Evitar que choferes con rides sean eliminados
+if ($user->esChofer() && Ride::where('chofer_id', $user->id)->exists()) {
+    return back()->with('status', 'No se puede eliminar este chofer porque tiene rides registrados.');
+}
 
-        return back()->with('status', 'Usuario eliminado correctamente.');
+// Evitar que pasajeros con reservas sean eliminados
+if ($user->esPasajero() && Reservation::where('user_id', $user->id)->exists()) {
+    return back()->with('status', 'No se puede eliminar este pasajero porque tiene reservas activas.');
+}
+
+// Borrar usuario si es seguro hacerlo
+$user->delete();
+
+return back()->with('status', 'Usuario eliminado correctamente.');
+
     }
 }
