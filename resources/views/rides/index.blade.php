@@ -43,7 +43,8 @@
                     @else
                         {{-- Círculo con iniciales si no hay foto --}}
                         <div class="h-full w-full bg-indigo-600 flex items-center justify-center text-white text-sm font-semibold">
-                            {{ strtoupper(mb_substr($user->name, 0, 1)) }}
+                            {{ strtoupper(mb_substr($user->nombre, 0, 1) . mb_substr($user->apellido, 0, 1)) }}
+
                         </div>
                     @endif
                 </div>
