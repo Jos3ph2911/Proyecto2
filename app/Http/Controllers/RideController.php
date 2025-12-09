@@ -64,7 +64,7 @@ class RideController extends Controller
             ->where('user_id', $user->id)
             ->firstOrFail();
 
-        // Máximo de pasajeros = capacidad - 1 (un asiento es del chofer)
+        // Máximo de pasajeros 
         $maxPasajeros = $vehicle->capacidad - 1;
 
     if ($request->espacios_totales > $maxPasajeros) {
@@ -143,7 +143,6 @@ class RideController extends Controller
         }
 
 
-        // Más adelante ajustaremos espacios_disponibles según reservas
         $ride->update([
             'vehicle_id'           => $vehicle->id,
             'titulo'               => $request->titulo,

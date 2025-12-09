@@ -37,7 +37,6 @@ class User extends Authenticatable
         'is_super_admin'    => 'boolean',
     ];
 
-    // Helpers
     public function esAdministrador(): bool
     {
         return $this->rol === 'administrador';
@@ -57,8 +56,7 @@ class User extends Authenticatable
     {
         return $this->is_super_admin === true;
     }
-
-        // Relaciones
+    
     public function vehicles()
     {
         return $this->hasMany(Vehicle::class, 'user_id');

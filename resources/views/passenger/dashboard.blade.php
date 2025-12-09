@@ -5,7 +5,6 @@
                 Panel del pasajero
             </h2>
 
-            {{-- Icono de perfil con foto o iniciales --}}
             <div class="flex items-center gap-3">
                 @if($user->foto)
                     <img src="{{ asset('perfiles/' . $user->foto) }}"
@@ -28,11 +27,9 @@
         </div>
     </x-slot>
 
-    {{-- 👇 MUY POCO ESPACIO ARRIBA Y CONTENIDO CENTRADO --}}
     <div class="py-2">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
 
-            {{-- Bloque de bienvenida + menú superior --}}
             <div class="bg-white shadow-sm sm:rounded-lg p-4">
                 <p class="text-sm text-gray-700 mb-4">
                     Este es tu panel como pasajero.
@@ -40,13 +37,11 @@
                 </p>
 
                 <div class="flex flex-wrap justify-end gap-3">
-                    {{-- Mis reservas --}}
                     <a href="{{ route('reservations.passenger.index') }}"
                        class="px-4 py-2 bg-gray-200 text-gray-800 text-xs rounded-md hover:bg-gray-300">
                         Mis reservas
                     </a>
 
-                    {{-- Mi perfil (Breeze /profile) --}}
                     <a href="{{ route('profile.edit') }}"
                        class="px-4 py-2 bg-blue-600 text-white text-xs rounded-md hover:bg-blue-500">
                         Mi perfil
@@ -54,7 +49,6 @@
                 </div>
             </div>
 
-            {{-- Bloque de búsqueda de rides --}}
             <div class="bg-white shadow-sm sm:rounded-lg p-4">
                 <h3 class="text-lg font-semibold mb-4">
                     Buscar rides disponibles

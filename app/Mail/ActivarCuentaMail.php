@@ -50,9 +50,7 @@ class ActivarCuentaMail extends Mailable
         );
     }
 
-    /**
-     * Adjuntos (no usamos ninguno).
-     */
+
     public function attachments(): array
     {
         return [];

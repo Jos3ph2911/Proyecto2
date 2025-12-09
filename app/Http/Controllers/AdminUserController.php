@@ -14,15 +14,13 @@ class AdminUserController extends Controller
 
     public function enviarRecordatoriosReservas(Request $request)
 {
-    // minutos de antigüedad de la reserva; si querés otro valor, cámbialo aquí
+    // minutos de antigüedad de la reserva
     $minutes = 1;
 
-    // Ejecuta el comando Artisan que ya creamos
     Artisan::call('reservations:remind-pending', [
         'minutes' => $minutes,
     ]);
 
-    // Mensaje para el admin
     return back()->with('status', "Se enviaron recordatorios a los choferes con reservas pendientes de más de {$minutes} minutos.");
 }
 
@@ -117,7 +115,6 @@ class AdminUserController extends Controller
 
     /**
      * Cambiar estado (PENDIENTE / ACTIVO / INACTIVO).
-     * Si un pasajero pasa a INACTIVO → liberar reservas.
      */
     public function updateStatus(Request $request, User $user)
     {
@@ -146,10 +143,7 @@ class AdminUserController extends Controller
         $user->estado = $request->estado;
         $user->save();
 
-        /**
-         * 🟦 NUEVA LÓGICA:
-         * Si el usuario desactivado es PASAJERO → cancelar reservas y liberar espacios.
-         */
+
         if ($user->esPasajero() && $user->estado === 'INACTIVO') {
 
             $reservas = $user->reservasComoPasajero()

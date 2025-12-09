@@ -21,7 +21,6 @@
                     </form>
 
                 @elseif ($user)
-                    {{-- Admin / Chofer --}}
                     <form method="POST" action="{{ route('logout') }}" class="inline-block">
                         @csrf
                         <button type="submit"
@@ -31,7 +30,6 @@
                     </form>
 
                 @else
-    {{-- Invitado --}}
     <a href="{{ route('login', ['from' => 'public']) }}"
        style="
             padding: 0.5rem 1rem;
@@ -69,7 +67,6 @@
     <div class="py-2">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
 
-            {{-- FILTROS DE BÚSQUEDA --}}
             <div class="bg-white shadow-sm sm:rounded-lg p-4">
                 <h3 class="text-lg font-semibold mb-4">
                     Buscar rides disponibles
@@ -125,7 +122,6 @@
                 @endif
             </div>
 
-            {{-- TABLA DE RIDES --}}
             <div class="bg-white shadow-sm sm:rounded-lg p-4">
                 @if ($rides->isEmpty())
                     <p class="text-sm text-gray-700">
@@ -164,7 +160,7 @@
                                 @endphp
 
                                 <tr class="border-b">
-                                    {{-- FOTO --}}
+
                                     <td class="px-3 py-2">
                                         @if ($ride->vehicle && $ride->vehicle->foto)
                                             <img src="{{ asset('storage/' . $ride->vehicle->foto) }}"
@@ -175,12 +171,12 @@
                                         @endif
                                     </td>
 
-                                    {{-- VEHÍCULO --}}
+                                    
                                     <td class="px-3 py-2">{{ $ride->vehicle->placa ?? 'N/A' }}</td>
                                     <td class="px-3 py-2">{{ $ride->vehicle->marca ?? 'N/A' }}</td>
                                     <td class="px-3 py-2">{{ $ride->vehicle->modelo ?? 'N/A' }}</td>
 
-                                    {{-- RIDE --}}
+                                    
                                     <td class="px-3 py-2">{{ $ride->titulo }}</td>
                                     <td class="px-3 py-2">{{ $ride->lugar_salida }}</td>
                                     <td class="px-3 py-2">{{ $ride->lugar_llegada }}</td>
@@ -188,7 +184,7 @@
                                     <td class="px-3 py-2">{{ number_format($ride->costo_por_espacio, 2) }}</td>
                                     <td class="px-3 py-2">{{ $ride->espacios_disponibles }}</td>
 
-                                    {{-- CHOFER --}}
+                                    
                                     <td class="px-3 py-2">
                                         @if ($ride->chofer)
                                             {{ $ride->chofer->nombre }} {{ $ride->chofer->apellido }}
@@ -197,10 +193,10 @@
                                         @endif
                                     </td>
 
-                                    {{-- ACCIÓN --}}
+                                    
                                     <td class="px-3 py-2">
                                         @if (!$user)
-                                            {{-- Invitado: botón "Reservar" → login --}}
+                                            
                                             <a href="{{ route('login', ['from' => 'public']) }}"
                                                 style="
                                                     padding: 4px 12px;

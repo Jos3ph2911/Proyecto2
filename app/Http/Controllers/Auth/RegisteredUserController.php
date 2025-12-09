@@ -47,7 +47,6 @@ class RegisteredUserController extends Controller
             'email'            => $request->email,
             'password'         => Hash::make($request->password),
             'rol'              => $request->rol,
-            // Por ahora se crea como PENDIENTE, luego haremos la activación por correo:
             'estado'           => 'PENDIENTE',
             'token_activacion' => Str::random(64),
         ]);
@@ -57,9 +56,6 @@ class RegisteredUserController extends Controller
 
         event(new Registered($user));
 
-        // IMPORTANTE: NO lo logueamos automáticamente,
-        // porque debe activar su cuenta primero.
-        // Auth::login($user);
 
         return redirect()->route('login')->with('status', 'Registro realizado. Tu cuenta está pendiente de activación.');
     }

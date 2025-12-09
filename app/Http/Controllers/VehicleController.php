@@ -48,7 +48,6 @@ class VehicleController extends Controller
 
         $rutaFoto = null;
         if ($request->hasFile('foto')) {
-            // Guarda en storage/app/public/vehiculos
             $rutaFoto = $request->file('foto')->store('vehiculos', 'public');
         }
 

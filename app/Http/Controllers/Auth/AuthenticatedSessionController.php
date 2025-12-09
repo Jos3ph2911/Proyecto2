@@ -12,17 +12,13 @@ use Illuminate\Validation\ValidationException;
 
 class AuthenticatedSessionController extends Controller
 {
-    /**
-     * Mostrar formulario de login.
-     */
+
     public function create(): View
     {
         return view('auth.login');
     }
 
-    /**
-     * Manejar envío de formulario de login.
-     */
+
     public function store(LoginRequest $request): RedirectResponse
     {
         $request->authenticate();
@@ -45,9 +41,9 @@ class AuthenticatedSessionController extends Controller
         return redirect()->intended(route('dashboard', absolute: false));
     }
 
-    /**
-     * Cerrar sesión.
-     */
+    
+     //Cerrar sesión.
+   
     public function destroy(Request $request): RedirectResponse
     {
         Auth::guard('web')->logout();

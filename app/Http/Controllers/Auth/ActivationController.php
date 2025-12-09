@@ -32,7 +32,7 @@ class ActivationController extends Controller
 
         // Activar la cuenta
         $user->estado = 'ACTIVO';
-        $user->token_activacion = null; // Eliminar token para que no se pueda usar otra vez
+        $user->token_activacion = null; 
         $user->save();
 
         return redirect()->route('login')->with(

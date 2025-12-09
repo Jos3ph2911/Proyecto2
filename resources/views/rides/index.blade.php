@@ -1,12 +1,10 @@
-{{-- resources/views/rides/index.blade.php --}}
-
 <x-app-layout>
 
-    {{-- HEADER IGUAL QUE PANEL DE PASAJERO --}}
+    
     <x-slot name="header">
         <div class="flex items-center justify-between">
 
-            {{-- Lado izquierdo --}}
+            
             <div>
                 <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                     Panel del chofer
@@ -16,7 +14,7 @@
                 </p>
             </div>
 
-            {{-- Lado derecho: foto pequeña o iniciales --}}
+            
             @php
                 $user = Auth::user();
                 // Foto del chofer en public/perfiles/
@@ -24,10 +22,10 @@
             @endphp
 
             <div class="flex items-center">
-                {{-- CONTENEDOR FIJO 40x40 PARA EL AVATAR --}}
+                
                 <div class="h-10 w-10 rounded-full overflow-hidden border border-gray-300 flex-shrink-0">
                     @if ($fotoPath)
-                        {{-- Foto real del chofer, siempre ajustada al contenedor --}}
+                        
                         <img
     src="{{ $fotoPath }}"
     alt="Foto de {{ $user->name }}"
@@ -41,7 +39,7 @@
 >
 
                     @else
-                        {{-- Círculo con iniciales si no hay foto --}}
+                        
                         <div class="h-full w-full bg-indigo-600 flex items-center justify-center text-white text-sm font-semibold">
                             {{ strtoupper(mb_substr($user->nombre, 0, 1) . mb_substr($user->apellido, 0, 1)) }}
 
@@ -49,7 +47,7 @@
                     @endif
                 </div>
 
-                {{-- Nombre + email --}}
+                
                 <div class="ml-3 text-right">
                     <div class="text-sm font-medium text-gray-900">
                         {{ $user->name }}
@@ -62,11 +60,11 @@
         </div>
     </x-slot>
 
-    {{-- CONTENIDO --}}
+
     <div class="py-8">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
-            {{-- Mensaje de estado --}}
+  
             @if (session('status'))
                 <div class="mb-4 text-sm text-green-700 bg-green-100 border border-green-200 px-4 py-3 rounded-lg">
                     {{ session('status') }}
@@ -75,7 +73,7 @@
 
             <div class="bg-white shadow-sm rounded-xl">
 
-                {{-- Barra superior --}}
+                
                 <div class="px-6 py-4 border-b border-gray-200 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
 
                     <div>
@@ -105,7 +103,7 @@
 
                 </div>
 
-                {{-- TABLA --}}
+                
                 <div class="px-6 py-5">
                     @if ($rides->isEmpty())
                         <p class="text-sm text-gray-500">No tienes rides registrados.</p>
@@ -136,7 +134,7 @@
                                 @foreach ($rides as $ride)
                                     <tr>
 
-                                        {{-- FOTO DEL VEHÍCULO --}}
+                                        
                                         <td class="px-3 py-2 whitespace-nowrap">
                                             @if ($ride->vehicle && $ride->vehicle->foto)
                                                 <img src="{{ asset('storage/' . $ride->vehicle->foto) }}"
@@ -163,11 +161,11 @@
                                             {{ number_format($ride->costo_por_espacio, 2) }}
                                         </td>
 
-                                        {{-- ACCIONES --}}
+                                       
                                         <td class="px-3 py-2 whitespace-nowrap">
     <div class="flex flex-col items-center gap-2">
 
-        {{-- RESERVAS (azul) --}}
+        
         <form method="GET" action="{{ route('driver.reservations.index', $ride) }}">
             <button type="submit"
                 style="
@@ -187,7 +185,7 @@
             </button>
         </form>
 
-        {{-- EDITAR (gris claro con borde) --}}
+        
         <form method="GET" action="{{ route('rides.edit', $ride) }}">
             <button type="submit"
                 style="
@@ -207,7 +205,7 @@
             </button>
         </form>
 
-        {{-- ELIMINAR (rojo) --}}
+        
         <form action="{{ route('rides.destroy', $ride) }}" method="POST"
               onsubmit="return confirm('¿Seguro que deseas eliminar este ride?');">
             @csrf

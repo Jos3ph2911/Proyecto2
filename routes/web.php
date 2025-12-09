@@ -36,8 +36,7 @@ Route::get('/dashboard', function () {
     }
 
     if ($user->esPasajero()) {
-        // Panel principal de pasajero: PANEL DEL PASAJERO
-        // ANTES: return redirect()->route('public.rides.index');
+
         return redirect()->route('passenger.dashboard');
     }
  
@@ -45,9 +44,7 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 
-// =============================
-// PERFIL (Breeze)
-// =============================
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -55,16 +52,12 @@ Route::middleware('auth')->group(function () {
 });
 
 
-// =============================
 // LISTADO PÚBLICO DE RIDES
-// =============================
 Route::get('/rides-disponibles', [PublicRideController::class, 'index'])
     ->name('public.rides.index');
 
 
-// =============================
-// RESERVAS PARA PASAJEROS
-// =============================
+// Reservas para pasajeros
 
 // Crear reserva (botón en la página pública)
 Route::post('/rides/{ride}/reservas', [ReservationController::class, 'store'])
@@ -88,9 +81,8 @@ Route::middleware(['auth', 'pasajero'])->group(function () {
 });
 
 
-// =============================
-// VEHÍCULOS Y RIDES (SOLO CHOFER)
-// =============================
+
+// Vehiculos y rides para choferes
 Route::middleware(['auth', 'chofer'])->group(function () {
     Route::resource('vehicles', VehicleController::class)->except(['show']);
     Route::resource('rides', RideController::class)->except(['show']);
@@ -111,9 +103,7 @@ Route::middleware(['auth', 'chofer'])->group(function () {
 });
 
 
-// =============================
-// PANEL DE ADMINISTRACIÓN (USUARIOS)
-// =============================
+//Panel de administración
 Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/usuarios', [AdminUserController::class, 'index'])
         ->name('admin.users.index');
